@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -26,6 +26,8 @@
         --green: #4caf50;
         --muted: #6b7280;
         --card-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.12);
+        --look-x: 0;
+        --look-y: 0;
       }
 
       html {
@@ -40,7 +42,6 @@
         line-height: 1.5;
       }
 
-      /* subtle grain */
       body::before {
         content: "";
         position: fixed;
@@ -49,6 +50,16 @@
         opacity: 0.35;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         z-index: 0;
+        transform: translate(
+          calc(var(--look-x) * 8px),
+          calc(var(--look-y) * 8px)
+        );
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body::before {
+          transform: none;
+        }
       }
 
       .page {
@@ -59,8 +70,9 @@
         flex-direction: column;
       }
 
-      /* Header */
       .header {
+        top: 40px;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -83,6 +95,7 @@
         font-weight: 600;
         letter-spacing: 0.12em;
         text-transform: uppercase;
+        transition: opacity 0.2s ease, transform 0.2s ease;
       }
 
       .nav-links a:hover {
@@ -92,36 +105,52 @@
       .brand {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
+        gap: 0.65rem;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
-      .brand-icon {
+      .brand:hover {
+        transform: translateX(-50%) scale(1.02);
+      }
+
+      .brand:focus-visible {
+        outline: 2px solid var(--navy);
+        outline-offset: 4px;
+        border-radius: 8px;
+      }
+
+      .brand-logo-wrap {
+        flex-shrink: 0;
+        width: clamp(3.25rem, 9vmin, 5rem);
+        height: clamp(3.25rem, 9vmin, 5rem);
+        border-radius: clamp(10px, 2vmin, 14px);
+        overflow: hidden;
         display: flex;
-        align-items: flex-end;
-        gap: 3px;
-        height: 22px;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.65);
+        box-shadow: 0 4px 16px rgba(46, 49, 146, 0.32);
+        transition: box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
-      .brand-icon span {
-        width: 4px;
-        border-radius: 1px;
-        background: var(--text);
+      .brand:hover .brand-logo-wrap {
+        box-shadow: 0 8px 24px rgba(46, 49, 146, 0.38);
+        transform: translateY(-1px);
       }
 
-      .brand-icon span:nth-child(1) {
-        height: 40%;
-      }
-      .brand-icon span:nth-child(2) {
-        height: 100%;
-      }
-      .brand-icon span:nth-child(3) {
-        height: 65%;
-      }
-      .brand-icon span:nth-child(4) {
-        height: 85%;
+      .brand-logo {
+        width: 78%;
+        height: 78%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
       }
 
       .brand-name {
@@ -141,10 +170,18 @@
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
+        transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 14px rgba(40, 53, 147, 0.35);
       }
 
       .btn-signup:hover {
         filter: brightness(1.08);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(40, 53, 147, 0.4);
+      }
+
+      .btn-signup:active {
+        transform: translateY(0);
       }
 
       .header-spacer {
@@ -165,6 +202,10 @@
           justify-content: center;
         }
 
+        .brand:hover {
+          transform: scale(1.02);
+        }
+
         .nav-links {
           flex: 1;
         }
@@ -174,7 +215,6 @@
         }
       }
 
-      /* Hero */
       .hero {
         flex: 1;
         display: grid;
@@ -198,50 +238,87 @@
         max-width: 32rem;
       }
 
-      .hero-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: radial-gradient(
-            circle at 35% 30%,
-            #333 0%,
-            #000 45%,
-            #1a1a1a 100%
-          );
+      .hero-mark {
+        width: clamp(4.25rem, 11vw, 5.5rem);
+        height: clamp(4.25rem, 11vw, 5.5rem);
         margin-bottom: 1.5rem;
-        position: relative;
+        border-radius: 22%;
         overflow: hidden;
-        box-shadow: inset 0 -8px 20px rgba(255, 255, 255, 0.12);
+        box-shadow:
+          0 20px 50px -12px rgba(46, 49, 146, 0.35),
+          0 0 0 1px rgba(255, 255, 255, 0.45) inset;
       }
 
-      .hero-icon::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-          90deg,
-          transparent 0 2px,
-          rgba(255, 255, 255, 0.06) 2px 4px
-        );
-        mask-image: radial-gradient(ellipse 70% 80% at 40% 45%, black, transparent);
+      .hero-mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
 
       .hero h1 {
         font-size: clamp(1.75rem, 4vw, 2.65rem);
         font-weight: 800;
-        letter-spacing: 0.02em;
-        line-height: 1.1;
+        letter-spacing: 0.04em;
+        line-height: 1.08;
         text-transform: uppercase;
+        margin-bottom: 1rem;
+      }
+
+      .coming-soon {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--navy);
+        background: rgba(40, 53, 147, 0.08);
+        border: 1px solid rgba(40, 53, 147, 0.2);
+        border-radius: 999px;
+        padding: 0.45rem 0.95rem;
         margin-bottom: 1.25rem;
       }
 
-      .hero p {
-        font-size: 0.72rem;
+      .coming-soon::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--navy);
+        opacity: 0.85;
+        animation: soon-pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes soon-pulse {
+        0%,
+        100% {
+          opacity: 0.45;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .coming-soon::before {
+          animation: none;
+          opacity: 0.85;
+        }
+      }
+
+      .hero-lede {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
         font-weight: 500;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--muted);
-        line-height: 1.8;
+        line-height: 1.95;
         max-width: 28rem;
       }
 
@@ -256,49 +333,152 @@
         border-radius: 50%;
         color: var(--text);
         text-decoration: none;
-        opacity: 0.5;
+        opacity: 0.55;
+        transition: opacity 0.25s ease, border-color 0.25s ease,
+          transform 0.25s ease;
       }
 
       .scroll-hint:hover {
         opacity: 1;
+        border-color: rgba(0, 0, 0, 0.35);
+        transform: translateY(2px);
       }
 
       .scroll-hint svg {
         width: 14px;
         height: 14px;
+        animation: scroll-nudge 2.2s ease-in-out infinite;
       }
 
-      /* Right visual */
+      @keyframes scroll-nudge {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(3px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .scroll-hint svg {
+          animation: none;
+        }
+
+        .brand:hover,
+        .btn-signup:hover,
+        .nav-links a,
+        .card {
+          transition: none;
+        }
+      }
+
       .hero-right {
         position: relative;
         min-height: clamp(320px, 50vw, 480px);
         display: flex;
         align-items: center;
         justify-content: center;
+        isolation: isolate;
       }
 
-      .blob-wrap {
+      .mesh-scene {
         position: absolute;
-        inset: 0;
+        inset: -12%;
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
+        overflow: visible;
+        pointer-events: none;
       }
 
-      .blob {
-        width: min(100%, 420px);
-        aspect-ratio: 1;
+      .mesh-blob {
+        position: absolute;
         border-radius: 50%;
-        background: linear-gradient(
-          145deg,
-          #6a1b9a 0%,
-          #1565c0 45%,
-          #00bcd4 100%
+        will-change: transform;
+      }
+
+      .mesh-blob--1 {
+        width: min(95%, 440px);
+        aspect-ratio: 1;
+        background: radial-gradient(
+          circle at 30% 25%,
+          #7b1fa2 0%,
+          #5e35b1 40%,
+          transparent 70%
         );
-        filter: blur(48px);
-        transform: scale(1.15);
-        opacity: 0.92;
+        filter: blur(42px);
+        opacity: 0.95;
+        transform: translate(
+            calc(var(--look-x) * 56px),
+            calc(var(--look-y) * 44px)
+          )
+          scale(1.18);
+      }
+
+      .mesh-blob--2 {
+        width: min(75%, 340px);
+        aspect-ratio: 1;
+        background: radial-gradient(
+          circle at 60% 55%,
+          #1e88e5 0%,
+          #283593 50%,
+          transparent 68%
+        );
+        filter: blur(38px);
+        opacity: 0.88;
+        transform: translate(
+            calc(var(--look-x) * -28px),
+            calc(var(--look-y) * -22px)
+          )
+          scale(1.05);
+      }
+
+      .mesh-blob--3 {
+        width: min(55%, 260px);
+        aspect-ratio: 1;
+        background: radial-gradient(
+          circle at 50% 50%,
+          #b39ddb 0%,
+          #00bcd4 45%,
+          transparent 65%
+        );
+        filter: blur(36px);
+        opacity: 0.82;
+        transform: translate(
+            calc(var(--look-x) * 36px),
+            calc(var(--look-y) * -36px)
+          )
+          scale(0.95);
+      }
+
+      .mesh-blob--4 {
+        width: min(110%, 520px);
+        aspect-ratio: 1.05;
+        border-radius: 48% 52% 50% 50%;
+        background: conic-gradient(
+          from 200deg at 50% 50%,
+          #4a148c,
+          #1565c0,
+          #80deea,
+          #9575cd,
+          #4a148c
+        );
+        filter: blur(56px);
+        opacity: 0.35;
+        transform: translate(
+            calc(var(--look-x) * 18px),
+            calc(var(--look-y) * 24px)
+          )
+          scale(1.25);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mesh-blob {
+          will-change: auto;
+          transition: none;
+          transform: none !important;
+        }
       }
 
       .side-label {
@@ -313,6 +493,7 @@
         text-transform: uppercase;
         white-space: nowrap;
         padding-right: 0.5rem;
+        opacity: 0.85;
       }
 
       @media (max-width: 900px) {
@@ -330,14 +511,51 @@
         align-items: flex-end;
         justify-content: center;
         padding: 2rem 0;
+        perspective: 900px;
       }
 
       .card {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border-radius: 14px;
         padding: 1.1rem 1.25rem;
         min-width: 160px;
         box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.45s ease;
+        animation: card-float 7s ease-in-out infinite;
+      }
+
+      .card:nth-child(2) {
+        animation-delay: -3.5s;
+      }
+
+      @keyframes card-float {
+        0%,
+        100% {
+          transform: translateY(0) rotateX(0deg);
+        }
+        50% {
+          transform: translateY(-8px) rotateX(2deg);
+        }
+      }
+
+      .card:hover {
+        box-shadow: 0 24px 56px -16px rgba(40, 53, 147, 0.18);
+        transform: translateY(-12px) rotateX(4deg) scale(1.02);
+        animation-play-state: paused;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card {
+          animation: none;
+        }
+
+        .card:hover {
+          transform: none;
+        }
       }
 
       .card-label {
@@ -354,45 +572,50 @@
         font-weight: 800;
         letter-spacing: -0.02em;
         line-height: 1.2;
+        font-variant-numeric: tabular-nums;
       }
 
       .card-trend {
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 500;
         color: var(--green);
         margin-top: 0.25rem;
       }
 
       .card-foot {
-        font-size: 0.65rem;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.62rem;
+        font-weight: 400;
         color: #9ca3af;
         margin-top: 0.5rem;
+        letter-spacing: 0.04em;
       }
     </style>
   </head>
   <body>
     <div class="page">
       <header class="header">
-        <ul class="nav-links">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Pricing</a></li>
-          <li><a href="#">Features</a></li>
-        </ul>
-        <div class="brand" aria-label="Royalytics home">
-          <div class="brand-icon" aria-hidden="true">
-            <span></span><span></span><span></span><span></span>
-          </div>
-          <span class="brand-name">royalytics</span>
-        </div>
+        <a class="brand" href="./" aria-label="Royalytics — home">
+          <span class="brand-logo-wrap">
+            <img
+              class="brand-logo"
+              src="./assets/img/royalytics.svg"
+              alt=""
+              width="80"
+              height="80"
+              decoding="async"
+            />
+          </span>
+        </a>
         <div class="header-spacer" aria-hidden="true"></div>
-        <button type="button" class="btn-signup">Sign up</button>
       </header>
 
       <main class="hero">
         <div class="hero-left">
-          <div class="hero-icon" aria-hidden="true"></div>
           <h1>Make the art. Master the numbers</h1>
-          <p>
+          <p class="coming-soon">Coming soon</p>
+          <p class="hero-lede">
             Reconcile royalties from labels, distributors, and PROs in one
             place. Less spreadsheet chaos, more clarity for you and your
             collaborators.
@@ -405,8 +628,11 @@
         </div>
 
         <div class="hero-right">
-          <div class="blob-wrap" aria-hidden="true">
-            <div class="blob"></div>
+          <div class="mesh-scene" aria-hidden="true">
+            <div class="mesh-blob mesh-blob--4"></div>
+            <div class="mesh-blob mesh-blob--1"></div>
+            <div class="mesh-blob mesh-blob--2"></div>
+            <div class="mesh-blob mesh-blob--3"></div>
           </div>
           <span class="side-label">Track it all in one place</span>
           <div class="cards">
@@ -428,5 +654,71 @@
 
       <section id="content" style="min-height: 1px" aria-hidden="true"></section>
     </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches;
+        var finePointer = window.matchMedia("(pointer: fine)").matches;
+
+        if (reduceMotion || !finePointer) {
+          root.style.setProperty("--look-x", "0");
+          root.style.setProperty("--look-y", "0");
+          return;
+        }
+
+        var targetX = 0;
+        var targetY = 0;
+        var currentX = 0;
+        var currentY = 0;
+        var raf = 0;
+
+        function norm(clientX, clientY) {
+          var w = window.innerWidth || 1;
+          var h = window.innerHeight || 1;
+          return {
+            x: (clientX / w) * 2 - 1,
+            y: (clientY / h) * 2 - 1,
+          };
+        }
+
+        function onMove(e) {
+          var n = norm(e.clientX, e.clientY);
+          targetX = n.x;
+          targetY = n.y;
+        }
+
+        function onLeave() {
+          targetX = 0;
+          targetY = 0;
+        }
+
+        function tick() {
+          var ease = 0.075;
+          currentX += (targetX - currentX) * ease;
+          currentY += (targetY - currentY) * ease;
+          root.style.setProperty("--look-x", currentX.toFixed(4));
+          root.style.setProperty("--look-y", currentY.toFixed(4));
+          raf = requestAnimationFrame(tick);
+        }
+
+        window.addEventListener("pointermove", onMove, { passive: true });
+        document.body.addEventListener("pointerleave", onLeave);
+        raf = requestAnimationFrame(tick);
+
+        window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener(
+          "change",
+          function (ev) {
+            if (ev.matches) {
+              cancelAnimationFrame(raf);
+              window.removeEventListener("pointermove", onMove);
+              root.style.setProperty("--look-x", "0");
+              root.style.setProperty("--look-y", "0");
+            }
+          }
+        );
+      })();
+    </script>
   </body>
 </html>
